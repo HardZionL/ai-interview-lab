@@ -1,0 +1,20 @@
+# Block credentials and private learning data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*
+*secret*
+*token*
+*.log
+*.bak
+*backup*.json
+*学习备份*.json
+*口述*.json
+*.sqlite
+*.db
+node_modules/
+.DS_Store
