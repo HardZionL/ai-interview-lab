@@ -103,18 +103,19 @@ AI Interview Lab 是一个可直接由浏览器运行的静态学习网页，以
 
 ## 原创视觉资产（Original Artwork）
 
-最新界面在 Editorial 排版基础上引入独立原创的“知识档案馆”视觉语言：暖米白纸张、版画刻线、钴蓝星图与书页门廊。
+最新界面在 Editorial 排版基础上引入古典雕塑、仿印刷颗粒、钴蓝星图和高清拼贴视觉语言；网站使用 WebP 图片，而不是旧版线稿 SVG。
 
 | 文件 | 说明 |
 | --- | --- |
-| `assets/atlas-of-questions.svg` | 原创「知识档案馆」首页主视觉：书页、环形星图与刻线 |
-| `assets/map-of-thought.svg` | 原创「思维路径图」学习进度侧栏插画 |
+| `assets/hero-sculpture.webp` | 主视觉：高清古典雕塑、钴蓝星图与黑白山峰拼贴，1700×861 |
+| `assets/study-hand-globe.webp` | 阅读区辅助插画：手与星球的黑白钴蓝拼贴，900×742 |
+| `assets/editorial-wing.webp` | 题目区域小型装饰：重新生成的钴蓝羽翼版画，640×830 |
 
-上述 SVG 均为本项目独立绘制的矢量代码，不包含 Hermes Agent / Nous Research 的 Logo、耳机女孩、羽翼品牌图标或直接下载的官方插画。设计借鉴的是一般性的编辑杂志、复古印刷与天文学图鉴语言，不表示与上述品牌存在任何合作或背书关系。
+上述图片采用为本项目生成的视觉方案，裁切、锐化并导出为压缩 WebP 栅格素材，不是 Hermes Agent / Nous Research 的官方图片、Logo、耳机女孩或下载的官方插画。羽翼是常见装饰母题，本次由生成画面中独立截取，没有复制品牌 Logo。放大的像素尺寸不等同于原生重绘细节，实际观感以网站显示为准。设计借鉴的是一般性的编辑杂志、复古印刷与天文学图鉴语言，不表示与上述品牌存在任何合作或背书关系。
 
 **注意**：本项目仍保留小林面试笔记的原题链接与原作者致谢；视觉素材的原创声明不改变原始资料作者对其文章的权利。
 
-**界面版本回滚**：本次原创视觉修改前的完整代码保存在 [备份分支 `backup/editorial-before-original-art-2026-10-27`](https://github.com/HardZionL/ai-interview-lab/tree/backup/editorial-before-original-art-2026-10-27)。如需要回退，可从该分支恢复 `index.html`，而无需清除当前浏览器的学习数据。学习数据与备份文件、分支相互独立。
+**界面版本回滚**：本次高清图片改版前的完整代码保存在 [备份分支 `backup/pre-hd-raster-art-2026-10-27`](https://github.com/HardZionL/ai-interview-lab/tree/backup/pre-hd-raster-art-2026-10-27)。如需要回退，可从该分支恢复 `index.html`，而无需清除当前浏览器的学习数据。学习数据与备份文件、分支相互独立。
 
 ## 路线图
 
