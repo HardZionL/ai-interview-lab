@@ -3,7 +3,7 @@
 <meta name="referrer" content="no-referrer"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; frame-src https://xiaolinnote.com; object-src 'none'; base-uri 'none'; form-action 'none'"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="theme-color" content="#F9F8F6"/><meta name="description" content="Agent / RAG / LLM 的深度研习与自适应口述训练。21天105道精讲，原站出处可核对。"/>
-<title>FIELDNOTES — AI Interview Lab · Editorial Edition</title>
+<title>FIELDNOTES — AI Interview Lab · Original Art Edition</title>
 <style>
 
 /* FIELDNOTES — EDITORIAL EDITION
@@ -236,6 +236,117 @@ input[type=checkbox]{accent-color:var(--ink)}
  *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
 
+
+
+/* FIELDNOTES ORIGINAL ART EDITION · 2026-10-27 */
+/* Original artwork commissioned/constructed for this project.
+   No Hermes / Nous Research logo, character, or official artwork is used. */
+:root{--cobalt:#1239db;--paper:#F9F8F6;--graphite:#1C1C1C}
+.top-logo{position:relative;padding-left:31px}
+.top-logo::before{content:"F";position:absolute;left:0;top:0;font:italic 23px/1 Georgia,serif;color:var(--cobalt);border-bottom:1px solid var(--cobalt);padding:0 1px 4px}
+.head{background:rgba(249,248,246,.95)}
+.head .topnav button.active{border-bottom:2px solid var(--cobalt);color:var(--graphite)}
+.hero{position:relative}
+.hero-layout{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(24px,4vw,70px);align-items:center;padding:clamp(62px,6vw,110px) 0 clamp(67px,7vw,110px)}
+.hero-copy{grid-column:1/span 7;max-width:unset;min-width:0}
+.hero .kicker{margin-bottom:clamp(32px,4vw,52px);font-size:11px;letter-spacing:.17em}
+.hero .kicker::before{content:"✳";font:18px/1 var(--serif);color:var(--cobalt);margin-right:14px;vertical-align:-1px}
+.hero h1{font-size:clamp(62px,6.25vw,115px);letter-spacing:-.065em;line-height:1.02}
+.scribble-word{color:var(--cobalt);font-style:italic}
+.hero-intro{max-width:520px;margin-top:38px;font-size:15px}
+.hero-footer{margin-top:50px;padding-top:22px;gap:28px}
+.hero-stat{gap:8px}
+.hero-stat strong{font-size:clamp(35px,3.5vw,50px)}
+.hero-bottomline{margin-top:45px}
+.hero-jump{display:inline-flex;align-items:center;gap:20px;background:var(--graphite);color:var(--paper);padding:11px 17px;border:1px solid var(--graphite);font-size:12px;transition:background .3s,color .3s}
+.hero-jump:hover{background:var(--paper);color:var(--graphite);text-decoration:none;border-color:var(--graphite)}
+.atlas-visual{grid-column:9/13;position:relative;min-width:0;margin:0;align-self:center;border:1px solid rgba(28,28,28,.17);padding:8px;background:var(--paper)}
+.atlas-visual:before{content:"FIG. 01  /  AN ATLAS OF QUESTIONS";position:absolute;top:-26px;left:0;font:9px var(--mono);letter-spacing:.14em;color:var(--quiet)}
+.atlas-visual img{display:block;width:100%;height:auto;aspect-ratio:720/820;object-fit:contain;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.atlas-visual:hover img{transform:scale(1.025)}
+.atlas-visual figcaption{position:absolute;right:8px;bottom:-28px;font:italic 12px var(--serif);color:var(--quiet)}
+.cover-top{letter-spacing:.17em}
+.cover-top::before{content:"●";color:var(--cobalt);font-size:9px;margin-right:12px}
+.cover-bottom{color:var(--quiet)}
+.process-tape{position:relative}
+.process-tape-inner{gap:14px 32px}
+.process-tape em{color:var(--cobalt)}
+.process-tape .tape-arrow{font-size:13px;color:var(--cobalt);opacity:.65}
+.content{background:var(--paper)}
+.dashboard{grid-template-columns:minmax(162px,194px) minmax(0,1fr) minmax(210px,250px);gap:clamp(20px,2.8vw,46px)}
+.rail-title{color:var(--graphite)}
+.day.current{background:var(--graphite);color:var(--paper);padding-left:12px}
+.day.current .num,.day.current .dmark{color:var(--paper)}
+.day:hover:not(.current):not(:disabled){background:rgba(18,57,219,.035)}
+.day.completed:not(.current) .dmark{color:var(--cobalt)}
+.panel{background:rgba(255,255,255,.25)}
+.panel-head .kicker,.section .micro{color:var(--cobalt)}
+.panel-head h2{font-size:clamp(30px,3vw,46px)}
+.strip{gap:7px}
+.qbtn{font-size:18px}
+.qbtn.selected{border-color:var(--cobalt);background:var(--cobalt);color:white}
+.qbtn:hover:not(.selected){border-color:var(--cobalt);color:var(--cobalt);background:transparent}
+.seg button.active{border-color:var(--cobalt);color:var(--graphite)}
+.tag.gold{border-color:var(--cobalt);color:var(--cobalt)}
+.step .ordinal{color:var(--cobalt)}
+.original{border-top:1px solid var(--graphite)}
+.original .kicker{color:var(--cobalt)}
+.original strong{font-size:22px}
+.btn.primary{background:var(--graphite);color:var(--paper)}
+.btn.primary:hover:not(:disabled){background:var(--cobalt);color:white;border-color:var(--cobalt)}
+.oral-field-label{display:block;color:var(--cobalt);margin-top:15px}
+input[type=checkbox]{accent-color:var(--cobalt)}
+.ring{border:1px solid rgba(18,57,219,.45)}
+.ring-inner strong{color:var(--cobalt)}
+.side-plate{margin:24px 0;background:transparent;border:1px solid var(--line);padding:10px 10px 15px;overflow:hidden}
+.side-plate img{display:block;width:100%;height:auto;max-height:240px;object-fit:cover;object-position:center 42%;filter:saturate(.9);transition:transform .9s ease}
+.side-plate:hover img{transform:scale(1.025)}
+.side-plate figcaption{display:flex;gap:9px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);margin-top:11px;padding-top:11px;font:9px/1.5 var(--mono);letter-spacing:.09em}
+.side-plate figcaption strong{font:italic 13px var(--serif);color:var(--cobalt)}
+.art-source{display:block;max-width:400px;font:10px/1.8 var(--mono);letter-spacing:.06em;color:var(--quiet)}
+.stats .stat-val{color:var(--cobalt)}
+.footer{background:var(--paper)}
+@media(max-width:1240px){
+ .dashboard{grid-template-columns:170px minmax(0,1fr)}
+ .hero-copy{grid-column:1/span 7}
+ .atlas-visual{grid-column:9/13}
+ .right-col{grid-column:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ .right-col .side-plate{grid-column:2;grid-row:1;align-self:start;margin:0}
+ .right-col .panel:last-child{grid-column:1/-1}
+}
+@media(max-width:930px){
+ .hero-layout{column-gap:22px}
+ .hero-copy{grid-column:1/span 7}
+ .atlas-visual{grid-column:9/13}
+ .hero h1{font-size:clamp(48px,6vw,80px)}
+ .hero-footer{gap:15px}
+ .hero-stat strong{font-size:33px}
+}
+@media(max-width:780px){
+ .hero-layout{grid-template-columns:repeat(12,minmax(0,1fr));padding:68px 0 67px}
+ .hero-copy{grid-column:1/13}
+ .hero h1{font-size:clamp(58px,9.2vw,90px)}
+ .atlas-visual{grid-column:3/11;margin:40px 0 35px;max-width:490px;justify-self:center}
+ .hero-intro{max-width:580px}
+ .right-col .side-plate{grid-column:2;grid-row:1}
+}
+@media(max-width:520px){
+ .top-logo{padding-left:21px}
+ .top-logo::before{font-size:18px}
+ .hero-layout{padding:57px 0 60px}
+ .hero .kicker{font-size:9px;letter-spacing:.08em}
+ .hero h1{font-size:clamp(49px,11vw,69px)}
+ .hero-footer{gap:13px}
+ .hero-stat strong{font-size:32px}
+ .atlas-visual{grid-column:2/12;max-width:330px;margin:45px auto 30px}
+ .cover-top::before{display:none}
+ .content{padding-top:42px}
+ .right-col{display:block}
+ .right-col .side-plate{margin:16px 0 0}
+ .right-col .panel:last-child{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){.atlas-visual img,.side-plate img{transition:none;transform:none!important}}
+
 </style></head>
 <body><div class="shell"><header class="head"><a class="top-logo" href="#" onclick="event.preventDefault();goHome()" aria-label="返回学习首页"><span class="crest">✳</span><span><strong>FIELDNOTES<span class="brand-period">.</span></strong><small>AN AI INTERVIEW FIELD GUIDE</small></span></a><nav class="topnav" aria-label="主导航"><button class="active" id="nav-learn" onclick="setView('learn')">学习手帖 <span>01</span></button><button id="nav-report" onclick="setView('report')">成长档案 <span>02</span></button><button id="nav-about" onclick="setView('about')">使用说明 <span>03</span></button></nav><div class="head-right"><span class="online">YOUR PERSONAL FIELD GUIDE</span><span class="head-sigil">✦</span></div></header>
 <section class="hero" aria-label="学习计划介绍">
@@ -248,6 +359,7 @@ input[type=checkbox]{accent-color:var(--ink)}
     <div class="hero-footer"><span class="hero-stat"><strong>21</strong><span>天 · 学习路径</span></span><span class="hero-stat"><strong>105</strong><span>道 · 精选问题</span></span><span class="hero-stat"><strong>05</strong><span>题 / 每日</span></span></div>
     <div class="hero-bottomline"><a class="hero-jump" href="#mainPanel">开始今日学习 <span>↗</span></a><span>READ &nbsp;↗&nbsp; RECALL &nbsp;↗&nbsp; REFLECT</span></div>
   </div>
+  <figure class="atlas-visual"><img src="assets/atlas-of-questions.svg" alt="FIELDNOTES 原创插画：展开的书页形成知识档案馆，钴蓝星图与刻线环绕" width="720" height="820" loading="eager" decoding="async"><figcaption>ideas become constellations · 2026</figcaption></figure>
   </div>
 <div class="cover-bottom"><span><i></i> 每日解锁 · 自适应追问 · 口述练习 · 原题溯源</span><span class="cover-serial">ISSUE N° 001 &nbsp; — &nbsp; FIELDNOTES</span></div>
 </section>
@@ -309,7 +421,7 @@ function contentAbout(){return `<div class="panel"><div class="pad"><div class="
 function downloadBackup(){let blob=new Blob([JSON.stringify({app:'Fieldnotes AI Interview Studio',exportedAt:new Date().toISOString(),data:S},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Fieldnotes_学习备份_'+sDate()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('学习档案已导出')}
 async function uploadBackup(e){let f=e.target.files?.[0];if(!f)return;try{let p=JSON.parse(await f.text()),d=p.data||p;let imp=d.version===2?importLegacy(d):d;if(imp.version!==3||!imp.records||typeof imp.records!=='object')throw Error('备份版本或格式不正确');if(!confirm('将覆盖当前浏览器学习记录。确认导入吗？'))return;S={...EMPTY(),...imp};save();render();toast('已恢复学习记录')}catch(err){alert('导入失败：'+err.message)}finally{e.target.value=''}}
 function resetAll(){if(!confirm('确定清空全部学习记录？建议先导出备份。'))return;S=EMPTY();save();render();toast('本地数据已清空')}
-function rightHtml(){let d=doneFor(selectedDay),score=avg();let review=BANK.filter(q=>isDone(q)&&record(q.id).score<70).slice(0,3);return `<div class="panel"><div class="pad"><div class="kicker">DAILY PERFORMANCE</div><div class="ring" style="--p:${d*20}%"><div class="ring-inner"><strong>${d}/5</strong><span class="ring-label">DAY ${selectedDay}</span></div></div><p class="small" style="text-align:center">${d===5?'TODAY COMPLETE':'STUDY · RECALL · REFLECT'}</p></div><div class="stats"><div class="stat"><div class="stat-val">${doneTotal()}</div><div class="stat-label">TOTAL DONE</div></div><div class="stat"><div class="stat-val">${score}</div><div class="stat-label">AVG SCORE</div></div></div></div><div class="panel"><div class="pad"><div class="kicker">NEXT ACTION</div><h3 style="font-size:16px;margin:10px 0;font-weight:600">${review.length?'复习薄弱知识点':'建立真正可复述的知识'}</h3><p class="plain">${review.length?'低掌握度题目已加入回顾队列，建议优先补齐再继续深入。':'每道题先读原理，面试口述后才显示要点核对；不会用猜选项代替理解。'}</p>${review.map(q=>`<button class="btn muted block" style="margin:5px 0;text-align:left" onclick="selectQ('${q.id}')">${h(q.topic)} · ${h(q.id)} ↗</button>`).join('')}<button class="btn block" onclick="setView('report')" style="margin-top:12px">VIEW LEARNING REPORT →</button></div></div><div class="panel"><div class="pad"><div class="kicker">DATA OWNERSHIP</div><p class="plain">浏览器本地保存。更换设备需导入备份；部署到固定域名后同一浏览器可持续积累。</p><button class="btn muted block" onclick="downloadBackup()">↓ EXPORT DATA JSON</button></div></div>`}
+function rightHtml(){let d=doneFor(selectedDay),score=avg();let review=BANK.filter(q=>isDone(q)&&record(q.id).score<70).slice(0,3);return `<div class="panel"><div class="pad"><div class="kicker">DAILY PERFORMANCE</div><div class="ring" style="--p:${d*20}%"><div class="ring-inner"><strong>${d}/5</strong><span class="ring-label">DAY ${selectedDay}</span></div></div><p class="small" style="text-align:center">${d===5?'TODAY COMPLETE':'STUDY · RECALL · REFLECT'}</p></div><div class="stats"><div class="stat"><div class="stat-val">${doneTotal()}</div><div class="stat-label">TOTAL DONE</div></div><div class="stat"><div class="stat-val">${score}</div><div class="stat-label">AVG SCORE</div></div></div></div><div class="panel"><div class="pad"><div class="kicker">NEXT ACTION</div><h3 style="font-size:16px;margin:10px 0;font-weight:600">${review.length?'复习薄弱知识点':'建立真正可复述的知识'}</h3><p class="plain">${review.length?'低掌握度题目已加入回顾队列，建议优先补齐再继续深入。':'每道题先读原理，面试口述后才显示要点核对；不会用猜选项代替理解。'}</p>${review.map(q=>`<button class="btn muted block" style="margin:5px 0;text-align:left" onclick="selectQ('${q.id}')">${h(q.topic)} · ${h(q.id)} ↗</button>`).join('')}<button class="btn block" onclick="setView('report')" style="margin-top:12px">VIEW LEARNING REPORT →</button></div></div><figure class="side-plate"><img src="assets/map-of-thought.svg" alt="FIELDNOTES 原创思维路径星图" width="600" height="680" loading="lazy" decoding="async"><figcaption><span>FIELD STUDY / 02</span><strong>Think beyond.</strong></figcaption></figure><div class="panel"><div class="pad"><div class="kicker">DATA OWNERSHIP</div><p class="plain">浏览器本地保存。更换设备需导入备份；部署到固定域名后同一浏览器可持续积累。</p><button class="btn muted block" onclick="downloadBackup()">↓ EXPORT DATA JSON</button></div></div>`}
 function render(){renderNav();document.getElementById('mainPanel').innerHTML=view==='learn'?contentLearn():view==='report'?contentReport():contentAbout();document.getElementById('rightPanel').innerHTML=rightHtml();}
 render();
 </script></body></html>
