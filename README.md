@@ -19,6 +19,14 @@
 
 改版前备份：[`backup/before-full-frontend-rewrite-2026-10-27`](https://github.com/HardZionL/ai-interview-lab/tree/backup/before-full-frontend-rewrite-2026-10-27)。
 
+## Reference Layout V5 · 2026-10-27
+
+- 以已确认的 FIELDNOTES 编辑杂志参考图为版式基准：左侧学习日历、顶部雕塑拼贴 Hero、中央每日任务与三张题目卡、右侧学习进度。
+- 三张推荐卡和五题索引读取 `DAYS[selectedDay - 1]` 与相应的真实题目，随所选日期变化，不固定为 Day 1。
+- 沿用原 `fieldnotes_interview_v3` 本地存储与 JSON 备份；保留口述、核对、规则评分及原站出处。
+- 本次重构前版本：[`backup/before-reference-layout-v5-2026-10-27`](https://github.com/HardZionL/ai-interview-lab/tree/backup/before-reference-layout-v5-2026-10-27)。
+- 图片素材说明：线上当前使用仓库已有的原创 WebP 拼贴素材；从已生成案例图截取的四张对应裁图包含在另外交付的完整本地静态网站包中。裁图是放大锐化处理，并非恢复新的原生摄影细节，且还没有同步替换线上二进制资产。
+
 ## 项目简介
 
 AI Interview Lab 是一个可直接由浏览器运行的静态学习网页，以高频 AI 工程面试知识为主线组织 21 天学习路径。它不只是刷选择题：先提供原理、工程场景和误区，再让学习者尝试独立口述，最后核对答题要点，决定补基础、巩固或继续深入。
