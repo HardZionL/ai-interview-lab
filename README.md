@@ -132,3 +132,11 @@ AI Interview Lab 是一个可直接由浏览器运行的静态学习网页，以
 ---
 
 **独立学习项目 · 非小林面试笔记官方网站 · 不构成任何关联或背书。**
+
+## 视觉图库与提示层修复（2026-10-27）
+
+- 修复 `.toast` 默认可见的空黑色提示方块：提示仅在交互反馈时短暂出现，之后完全隐藏。
+- 新增五张从本项目原创生成的概念画面中裁切整理的 WebP 图片：`gallery-memory.webp`、`gallery-retrieval.webp`、`gallery-workflow.webp`、`engraving-star.webp`、`engraving-grain.webp`。
+- 首页三栏视觉知识索引与相应学习题目链接；题目页自动按 Agent/RAG/Tool 类别显示插画；学习侧栏加入版画细节。
+- 生成画面裁切放大后的像素尺寸不代表具有同等原生细节。未下载或使用 Hermes 官方 Logo、耳机女孩或官方图片。
+- 升级前完整项目保存在 `backup/before-toast-and-gallery-redesign-2026-10-27` 分支，学习记录键与题库结构保持不变。
