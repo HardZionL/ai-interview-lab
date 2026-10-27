@@ -100,6 +100,22 @@ AI Interview Lab 是一个可直接由浏览器运行的静态学习网页，以
 
 本项目目前**未提供 LICENSE 文件**；仓库公开可阅读不等于允许第三方无条件复制或再分发代码。若后续准备开放代码许可，将先明确区分原创代码与第三方内容，避免把原站权利包含进去。版权反馈、来源补正及下架请求，可在本项目 [Issues](https://github.com/HardZionL/ai-interview-lab/issues) 中提出（勿粘贴个人信息）。
 
+
+## 原创视觉资产（Original Artwork）
+
+最新界面在 Editorial 排版基础上引入独立原创的“知识档案馆”视觉语言：暖米白纸张、版画刻线、钴蓝星图与书页门廊。
+
+| 文件 | 说明 |
+| --- | --- |
+| `assets/atlas-of-questions.svg` | 原创「知识档案馆」首页主视觉：书页、环形星图与刻线 |
+| `assets/map-of-thought.svg` | 原创「思维路径图」学习进度侧栏插画 |
+
+上述 SVG 均为本项目独立绘制的矢量代码，不包含 Hermes Agent / Nous Research 的 Logo、耳机女孩、羽翼品牌图标或直接下载的官方插画。设计借鉴的是一般性的编辑杂志、复古印刷与天文学图鉴语言，不表示与上述品牌存在任何合作或背书关系。
+
+**注意**：本项目仍保留小林面试笔记的原题链接与原作者致谢；视觉素材的原创声明不改变原始资料作者对其文章的权利。
+
+**界面版本回滚**：本次原创视觉修改前的完整代码保存在 [备份分支 `backup/editorial-before-original-art-2026-10-27`](https://github.com/HardZionL/ai-interview-lab/tree/backup/editorial-before-original-art-2026-10-27)。如需要回退，可从该分支恢复 `index.html`，而无需清除当前浏览器的学习数据。学习数据与备份文件、分支相互独立。
+
 ## 路线图
 
 - [ ] 逐篇核实并完善剩余学习条目的深度讲解与原文链接
