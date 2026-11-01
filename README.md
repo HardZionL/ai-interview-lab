@@ -124,6 +124,10 @@ AI Interview Lab 是一个可直接由浏览器运行的静态学习网页，以
 
 ## 原创视觉资产（Original Artwork）
 
+**视觉设计规范（2026-11-01）**：[FIELDNOTES 前端与高级古雅视觉设计系统](./docs/visual-style/FIELDNOTES_Frontend_and_Classical_Art_Design_System.md) · [白底钴蓝古典宇宙插画规范](./docs/visual-style/FIELDNOTES_Cobalt_Classical_Style_Guide.md)。新图和前端改版应先按规范制作预览、经过审核再替换线上资源。
+
+
+
 最新界面在 Editorial 排版基础上引入古典雕塑、仿印刷颗粒、钴蓝星图和高清拼贴视觉语言；网站使用 WebP 图片，而不是旧版线稿 SVG。
 
 | 文件 | 说明 |
