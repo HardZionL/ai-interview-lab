@@ -14,14 +14,15 @@ function text(ctx:CanvasRenderingContext2D,s:string,x:number,y:number,size:numbe
 function line(ctx:CanvasRenderingContext2D,x1:number,y1:number,x2:number,y2:number,color="#d7dce7",width=1){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();}
 
 function combinedRadar(c:CanvasRenderingContext2D,report:Report){
-  const cx=600,cy=933,R=267;
+  // Leave enough breathing room for the section heading and outer axis labels.
+  const cx=600,cy=947,R=240;
   const point=(angle:number,factor:number)=>[cx+Math.cos(angle)*R*factor,cy+Math.sin(angle)*R*factor] as const;
   const angles=Array.from({length:14},(_,i)=>-Math.PI/2+(i+.5)*Math.PI*2/14);
   for(const scale of [.25,.5,.75,1]){
     c.beginPath();angles.forEach((angle,i)=>{const [x,y]=point(angle,scale);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.closePath();c.strokeStyle="#d9dfec";c.lineWidth=1.5;c.stroke();
   }
   angles.forEach(angle=>{const [x,y]=point(angle,1);line(c,cx,cy,x,y,"#d8dfeb",1.3);});
-  line(c,cx,620,cx,1244,"#b5c5eb",1.5);
+  line(c,cx,676,cx,1218,"#b5c5eb",1.5);
   const vectors=[{kind:"virtue" as const,color:COBALT,fill:"#174bff31",index:0},{kind:"sin" as const,color:"#737985",fill:"#9aa0ac35",index:7}];
   vectors.forEach(v=>{
     c.beginPath();c.moveTo(cx,cy);
