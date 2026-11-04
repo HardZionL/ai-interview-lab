@@ -1,16 +1,57 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { axes, frequencyLabels, modeInfo, questionsForMode, scoreAnswers, type QuizMode, type Report } from "../lib/quiz";
 
 type View = "home" | "quiz" | "result" | "archive" | "method";
-const PROGRESS_KEY = "fieldnotes_pages_progress_v1";
+// v2 uses interleaved question order; older in-progress answers cannot be reinterpreted.
+const PROGRESS_KEY = "fieldnotes_pages_progress_v2";
 const HISTORY_KEY = "fieldnotes_pages_reports_v1";
 type Progress = { mode: QuizMode; answers: (number|null)[]; index: number };
 const emptyAnswers = (mode: QuizMode) => Array<number|null>(questionsForMode(mode).length).fill(null);
 
 function Seal({ small = false }: { small?: boolean }) {
   return <span className={`brand-seal ${small ? "brand-seal-small" : ""}`} aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="currentColor" strokeWidth=".8"/><circle cx="22" cy="22" r="14" fill="none" stroke="currentColor" strokeWidth=".6"/><path d="M22 5 26 18 39 22 26 26 22 39 18 26 5 22 18 18Z" fill="none" stroke="currentColor" strokeWidth=".95"/><circle cx="22" cy="22" r="3.5" fill="currentColor"/></svg></span>;
+}
+
+const cardOrder=[0,4,6,1,5,2,3] as const;
+function CardArt({ axis, loading="lazy" }: {axis:number;loading?:"lazy"|"eager"}) {
+  return <img src={`${import.meta.env.BASE_URL}assets/sins/${axes[axis].art}.webp`} loading={loading} alt={`${axes[axis].sin} · ${axes[axis].en.split(" / ")[0]}，白底钴蓝大理石雕塑卡牌`}/>;
+}
+
+function HeroCardComposition() {
+  return <div className="hero-card-composition" aria-label="七宗罪古典卡牌作品选集">
+    <div className="hero-astral-ring" aria-hidden="true"/>
+    <div className="hero-art-card hero-art-card-left"><CardArt axis={1}/></div>
+    <div className="hero-art-card hero-art-card-right"><CardArt axis={2}/></div>
+    <div className="hero-art-card hero-art-card-center"><CardArt axis={0} loading="eager"/></div>
+    <span className="hero-art-label">THE SEVEN ENGRAVINGS <i>·</i> 01—07</span>
+  </div>;
+}
+
+function FlipDeck({report}:{report:Report}) {
+  const [flipped,setFlipped]=useState<boolean[]>(()=>Array(7).fill(false));
+  useEffect(()=>{setFlipped(Array(7).fill(false));},[report.id]);
+  return <div className="flip-deck" aria-label="七宗罪七美德双面卡牌，点击卡牌翻面查看分数">
+    {cardOrder.map((axisIndex,pos)=>{
+      const axis=axes[axisIndex], pair=report.scores[axisIndex], isOpen=flipped[pos];
+      return <button type="button" key={axis.sin} className={`flip-card ${isOpen?"is-flipped":""}`} aria-label={`${axis.sin}与${axis.virtue}，${isOpen?"点击翻回插画":"点击翻转查看两项分数"}`} aria-pressed={isOpen} onClick={()=>setFlipped(prev=>prev.map((v,i)=>i===pos?!v:v))}>
+        <span className="flip-card-inner">
+          <span className="flip-card-face flip-card-front"><CardArt axis={axisIndex}/><span className="flip-hint"><span>✧</span> CLICK TO REVEAL <span>↻</span></span></span>
+          <span className="flip-card-face flip-card-back">
+            <span className="flip-back-top"><span>FIELDNOTES / {String(pos+1).padStart(2,"0")}</span><span>✳</span></span>
+            <span className="flip-back-emblem">✦</span>
+            <span className="flip-back-heading">TWO SIDES<br/>OF ONE SELF</span>
+            <span className="flip-back-rule"/>
+            <span className="flip-score-group"><span className="flip-score-title">SHADOW / {axis.sin}</span><span className="flip-score-number">{pair.sin}<small>/100</small></span><span className="flip-score-track"><span style={{width:`${pair.sin}%`}}/></span></span>
+            <span className="flip-score-group virtue"><span className="flip-score-title">LIGHT / {axis.virtue}</span><span className="flip-score-number">{pair.virtue}<small>/100</small></span><span className="flip-score-track"><span style={{width:`${pair.virtue}%`}}/></span></span>
+            <span className="flip-back-note">两个维度独立计分<br/>不是此消彼长的比例</span>
+            <span className="flip-back-bottom">TAP TO RETURN <span>↺</span></span>
+          </span>
+        </span>
+      </button>;
+    })}
+  </div>;
 }
 
 function PortalArt() {
@@ -126,8 +167,10 @@ export default function Home() {
   const [busy,setBusy]=useState(false);
   const [feedback,setFeedback]=useState("");
   const [ready,setReady]=useState(false);
+  const advanceTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const activeQuestions=useMemo(()=>questionsForMode(mode),[mode]);
-  const perPair=modeInfo[mode].perTrait*2;
+  const clearAdvance=()=>{if(advanceTimer.current!==null){clearTimeout(advanceTimer.current);advanceTimer.current=null;}};
+  useEffect(()=>()=>{if(advanceTimer.current!==null)clearTimeout(advanceTimer.current);},[]);
 
   const openReport=useCallback((token:string)=>{
     const item=decodeReport(token);
@@ -151,22 +194,33 @@ export default function Home() {
   const displayProgress=view==="result"&&report?100:progress;
   const displayAnswered=view==="result"&&report?(report.questionCount||35):answered;
   const displayTotal=view==="result"&&report?(report.questionCount||35):activeQuestions.length;
-  const activeAxis=activeQuestions[index]?.axis??0;
-  const resume=()=>{setFeedback("");setView("quiz");};
-  const restart=()=>{setAnswers(emptyAnswers(mode));setIndex(0);setReport(null);setFeedback("");window.history.replaceState(null,"",window.location.pathname);setView("quiz");};
-  const changeMode=(next:QuizMode)=>{if(next===mode)return;if(answers.some(a=>a!==null)&&!window.confirm("切换测试版本会清空本次未完成的作答，确定切换吗？"))return;setMode(next);setAnswers(emptyAnswers(next));setIndex(0);setReport(null);setFeedback("");};
-  const choose=(selected:number)=>setAnswers(previous=>previous.map((v,i)=>i===index?selected:v));
-  const submit=async()=>{
-    if(answers.some(a=>a===null)){setFeedback("还有题目未完成，请先补全全部回答。");const i=answers.findIndex(a=>a===null);if(i>=0)setIndex(i);return;}
+  const resume=()=>{clearAdvance();setFeedback("");setView("quiz");};
+  const restart=()=>{clearAdvance();setAnswers(emptyAnswers(mode));setIndex(0);setReport(null);setFeedback("");window.history.replaceState(null,"",window.location.pathname);setView("quiz");};
+  const changeMode=(next:QuizMode)=>{if(next===mode)return;if(answers.some(a=>a!==null)&&!window.confirm("切换测试版本会清空本次未完成的作答，确定切换吗？"))return;clearAdvance();setMode(next);setAnswers(emptyAnswers(next));setIndex(0);setReport(null);setFeedback("");};
+  const submit=async(completed:(number|null)[]=answers)=>{
+    if(completed.some(a=>a===null)){setFeedback("还有题目未完成，请先补全全部回答。");const i=completed.findIndex(a=>a===null);if(i>=0)setIndex(i);return;}
     setBusy(true);setFeedback("");
-    try {const id=typeof crypto.randomUUID==="function"?crypto.randomUUID():`${Date.now().toString(36)}-${Math.random().toString(36).slice(2,12)}`;const result: Report={...scoreAnswers(answers as number[],mode),id,createdAt:new Date().toISOString()};setReport(result);const next=[result,...loadReports().filter(x=>x.id!==result.id)].slice(0,20);localStorage.setItem(HISTORY_KEY,JSON.stringify(next));localStorage.removeItem(PROGRESS_KEY);setView("result");window.history.replaceState(null,"",shareLink(result));}
+    try {const id=typeof crypto.randomUUID==="function"?crypto.randomUUID():`${Date.now().toString(36)}-${Math.random().toString(36).slice(2,12)}`;const result: Report={...scoreAnswers(completed as number[],mode),id,createdAt:new Date().toISOString()};setReport(result);const next=[result,...loadReports().filter(x=>x.id!==result.id)].slice(0,20);localStorage.setItem(HISTORY_KEY,JSON.stringify(next));localStorage.removeItem(PROGRESS_KEY);setView("result");window.history.replaceState(null,"",shareLink(result));}
     catch(e){setFeedback(e instanceof Error?e.message:"网络错误，请重试");}
     finally{setBusy(false);}
   };
-  const next=()=>{if(answers[index]===null)return;if(index<activeQuestions.length-1){setIndex(index+1);setFeedback("");}else void submit();};
-  const goArchive=()=>{setView("archive");setFeedback("");setArchive(loadReports());window.history.replaceState(null,"",window.location.pathname);};
+  const choose=(selected:number)=>{
+    if(busy)return;
+    clearAdvance();
+    const currentIndex=index;
+    const completed=answers.map((v,i)=>i===currentIndex?selected:v);
+    setAnswers(completed);setFeedback("");
+    // Short acknowledgment keeps the selection visible while retaining single-tap flow.
+    advanceTimer.current=setTimeout(()=>{
+      advanceTimer.current=null;
+      if(currentIndex===activeQuestions.length-1)void submit(completed);
+      else setIndex(currentIndex+1);
+    },320);
+  };
+  const goPrevious=()=>{clearAdvance();setIndex(i=>Math.max(0,i-1));setFeedback("");};
+  const goArchive=()=>{clearAdvance();setView("archive");setFeedback("");setArchive(loadReports());window.history.replaceState(null,"",window.location.pathname);};
   const share=async()=>{if(!report)return;const url=shareLink(report);try{await navigator.clipboard.writeText(url);setFeedback("报告链接已复制；链接本身包含匿名汇总分数，知道链接的人都能查看。");}catch{setFeedback(`分享链接：${url}`);}};
-  const move=(destination:View)=>{if(destination==="archive")void goArchive();else{setFeedback("");setView(destination);if(destination==="home"||destination==="method")window.history.replaceState(null,"",window.location.pathname);}};
+  const move=(destination:View)=>{clearAdvance();if(destination==="archive")void goArchive();else{setFeedback("");setView(destination);if(destination==="home"||destination==="method")window.history.replaceState(null,"",window.location.pathname);}};
 
   return <div className="site-shell">
     <aside className="left-rail">
@@ -180,7 +234,7 @@ export default function Home() {
         <button className={view==="archive"?"active":""} onClick={()=>void goArchive()}><span>03</span> 我的档案</button>
         <button className={view==="method"?"active":""} onClick={()=>move("method")}><span>04</span> 关于这套测试</button>
       </nav>
-      <div className="rail-rule"/><p className="rail-label">THE SEVEN CHAPTERS</p><div className="rail-chapters">{axes.map((axis,i)=><button type="button" key={axis.sin} onClick={()=>{if(view==="quiz")setIndex(i*perPair);else move("method");}}><span>{axis.sigil}</span><span>{axis.sin}<b>/</b>{axis.virtue}</span></button>)}</div>
+      {view==="quiz"?<div className="rail-quiet-note"><span>ANONYMOUS REFLECTION</span><p>此刻只需关注自己的真实反应。</p><small>维度与结果将在完成后揭晓。</small></div>:<><div className="rail-rule"/><p className="rail-label">THE SEVEN CHAPTERS</p><div className="rail-chapters">{axes.map(axis=><div key={axis.sin}><span>{axis.sigil}</span><span>{axis.sin}<b>/</b>{axis.virtue}</span></div>)}</div></>}
       <div className="rail-bottom"><span className="tiny-star">✦</span><p>“认识人性，不是为了判决自己，而是学会与它温柔相处。”</p><span>VOL. I — MMXXVI</span></div>
     </aside>
 
@@ -189,27 +243,28 @@ export default function Home() {
       {view==="home"&&<>
         <section className="home-hero"><div className="hero-copy"><p className="eyebrow"><span className="eyebrow-line"/> THE MORAL SPECTRUM · ISSUE NO. 01</p><h1><span className="big-display">Vices <i>&</i><br/>Virtues<span className="display-period">.</span></span><span className="hero-chinese">人性，是一场<br/>光与影的对话。</span></h1><p className="hero-intro">七种本能，七种光亮。以过去三个月的真实经历为线索，从十四个独立观察方向勾勒属于你的性格素描。</p>
           <div className="hero-actions"><button className="primary-button" onClick={answered>0?resume:()=>document.getElementById("mode-title")?.scrollIntoView({behavior:"smooth",block:"start"})}>{answered>0?"继续我的探索":"选择探索版本"}<span aria-hidden="true">↗</span></button><button className="text-button" onClick={()=>move("method")}>了解测试原理 <span>→</span></button></div><div className="hero-caption"><span>NO RIGHT OR WRONG ANSWER</span><span>SCROLL TO DISCOVER ↓</span></div></div>
-          <div className="hero-illustration"><PortalArt/><span className="vertical-note">THE TWO FACES OF OUR NATURE</span></div>
+          <div className="hero-illustration"><HeroCardComposition/></div>
         </section>
         <section className="intro-bottom"><div className="section-number">01 / THE INQUIRY</div><div className="intro-bottom-title">不必完美，<br/><em>只需诚实。</em></div><div className="intro-bottom-copy"><p>请根据过去三个月的真实生活作答，选择行为出现的频率，而不是“应该”怎样。它是一份原创自我觉察问卷，并非经验证的心理量表。</p><div className="metric-row"><span><strong>42 / 70</strong> 道行为题</span><span><strong>14</strong> 个独立指标</span><span><strong>5</strong> 级频率量尺</span></div></div></section>
         <section className="home-duality"><article className="duality-card"><span className="card-index">I — VII / SHADOW</span><div className="sunmark dark-sun">✳</div><h3>七宗罪 <small>THE VICES</small></h3><p>那些使我们热烈、敏感、执着，有时也让我们失去平衡的本能。</p></article><article className="duality-card light-card"><span className="card-index">VIII — XIV / LIGHT</span><div className="sunmark blue-sun">✧</div><h3>七美德 <small>THE VIRTUES</small></h3><p>那些让我们愿意倾听、分享、等待、节制，并与世界友善相处的能力。</p></article></section>
         <section className="mode-section" aria-labelledby="mode-title"><div className="section-rule"><span>02 / CHOOSE YOUR EXPLORATION</span><span>YOUR PACE / YOUR CHOICE</span></div><h2 className="section-display" id="mode-title">选择你的探索深度</h2><div className="mode-options">{(["brief","deep"] as const).map(value=><button key={value} className={`mode-card ${mode===value?"selected":""}`} aria-pressed={mode===value} onClick={()=>changeMode(value)}><span className="mode-index">{value==="brief"?"I / THE SKETCH":"II / THE PORTRAIT"}</span><span className="mode-count">{modeInfo[value].count}<small> QUESTIONS</small></span><strong>{modeInfo[value].name}</strong><span className="mode-desc">每个特质 {modeInfo[value].perTrait} 题 · {modeInfo[value].time}</span><span className="mode-tick">{mode===value?"✓ 当前选择":"选择此版本 ↗"}</span></button>)}</div><p className="mode-caveat">同一题型使用五级频率作答；两种长度不可视为等价的正式心理测量。更长版本能提供更多观察线索，但仍未经过信效度验证。</p><button className="primary-button" onClick={resume}>开始 {modeInfo[mode].count} 道探索 <span>↗</span></button></section>
-        <section className="gallery-section" aria-labelledby="gallery-title"><div className="section-rule"><span>03 / THE SEVEN ENGRAVINGS</span><span>COBALT & MARBLE</span></div><h2 className="section-display" id="gallery-title">七宗罪 · 古典图鉴</h2><p className="gallery-intro">大理石雕塑、天球轨道与钴蓝星芒。七幅寓言式人物卡由你提供，原比例完整展示；画面象征思想母题，不是对作答者的人格判断。</p><div className="card-gallery">{([0,4,6,1,5,2,3] as const).map((axisIndex,i)=><figure className="gallery-card" key={axes[axisIndex].art}><div className="gallery-art"><img src={`${import.meta.env.BASE_URL}assets/sins/${axes[axisIndex].art}.webp`} alt={`${axes[axisIndex].sin} / ${axes[axisIndex].en} 古典钴蓝雕塑卡牌`} loading="lazy"/></div><figcaption><span>{String(i+1).padStart(2,"0")}</span><strong>{axes[axisIndex].sin}</strong><small>{axes[axisIndex].en.split(" / ")[0]}</small></figcaption></figure>)}</div></section>
+        <section className="gallery-section" aria-labelledby="gallery-title"><div className="section-rule"><span>03 / THE SEVEN ENGRAVINGS</span><span>COBALT & MARBLE</span></div><h2 className="section-display" id="gallery-title">七宗罪 · 古典图鉴</h2><p className="gallery-intro">大理石雕塑、天球轨道与钴蓝星芒。七幅寓言式人物卡由你提供，原比例完整展示；完成测试后，七张卡牌会成为可以翻阅的个人结果图鉴。</p><div className="card-gallery">{cardOrder.map((axisIndex,i)=><figure className="gallery-card" key={axes[axisIndex].art}><div className="gallery-art"><CardArt axis={axisIndex}/></div><figcaption><span>{String(i+1).padStart(2,"0")}</span><strong>{axes[axisIndex].sin}</strong><small>{axes[axisIndex].en.split(" / ")[0]}</small></figcaption></figure>)}</div></section>
       </>}
 
-      {view==="quiz"&&<section className="question-section"><div className="quiz-heading"><span className="eyebrow"><span className="eyebrow-line"/> CHAPTER {String(activeAxis+1).padStart(2,'0')} / PERSONAL REFLECTION · {modeInfo[mode].name}</span><span className="question-pager">{String(index+1).padStart(2,'0')} <span>/ {activeQuestions.length}</span></span></div>
-        <div className="quiz-line"><div style={{width:`${progress}%`}}/></div><div className="question-main"><div className="question-overprint" aria-hidden="true">{String(index+1).padStart(2,'0')}</div><p className="scene-label">✦ &nbsp; {activeQuestions[index].scene} &nbsp; / &nbsp; THE MOMENT</p><h1>{activeQuestions[index].text}</h1><p className="question-instruction">回想过去三个月：这种反应在真实生活中出现得有多频繁？没有标准答案。请选择最符合实际的一项。</p>
-          <div className="option-list frequency-list" role="group" aria-label="行为出现频率">{frequencyLabels.map((label,i)=><button key={label} type="button" className={`answer-option ${answers[index]===i?'selected':''}`} aria-pressed={answers[index]===i} onClick={()=>choose(i)}><span className="option-letter">{i+1}</span><span>{label}</span><span className="option-indicator">{answers[index]===i?'✓':'↗'}</span></button>)}</div>
-        </div><div className="quiz-footer"><button className="previous-button" disabled={index===0} onClick={()=>setIndex(index-1)}>← 上一题</button><span>仅依据自己的经历选择</span><button className="primary-button" disabled={answers[index]===null||busy} onClick={next}>{index===activeQuestions.length-1?(busy?'正在生成报告…':'生成个人图鉴'):'下一题'} <span>→</span></button></div>
+      {view==="quiz"&&<section className="question-section"><div className="quiz-heading"><span className="eyebrow"><span className="eyebrow-line"/> A MOMENT OF REFLECTION · {modeInfo[mode].name}</span><span className="question-pager"><small>QUESTION</small> {String(index+1).padStart(2,'0')} <span>/ {activeQuestions.length}</span></span></div>
+        <div className="quiz-line"><div style={{width:`${progress}%`}}/></div><div className="question-main"><div className="question-topline"><span>✦ &nbsp; {activeQuestions[index].scene}</span><span>NO. {String(index+1).padStart(2,'0')}</span></div><h1 key={index}>{activeQuestions[index].text}</h1><p className="question-instruction">回想过去三个月，这种反应在你的真实生活中出现得有多频繁？</p>
+          <div className="option-list frequency-list" role="group" aria-label="行为出现频率">{frequencyLabels.map((label,i)=><button key={label} type="button" className={`answer-option ${answers[index]===i?'selected':''}`} aria-pressed={answers[index]===i} onClick={()=>choose(i)} disabled={busy}><span className="option-letter">{String(i+1).padStart(2,'0')}</span><span>{label}</span><span className="option-indicator">{answers[index]===i?'✓':'↗'}</span></button>)}</div>
+        </div><div className="quiz-footer"><button className="previous-button" disabled={index===0||busy} onClick={goPrevious}>← 返回上一题</button><span className="auto-advance-hint"><span aria-hidden="true">✧</span> 选择后自动进入下一题{index===activeQuestions.length-1?"，并生成报告":""}</span></div>
         {feedback&&<p className="feedback" role="status">{feedback}</p>}</section>}
 
       {view==="result"&&report&&<section className="result-section"><div className="result-opening"><p className="eyebrow"><span className="eyebrow-line"/> YOUR PERSONAL ATLAS / REPORT NO. {report.id.slice(0,8).toUpperCase()}</p><span className="result-stamp">✦</span><h1>你的灵魂，<br/><em>有两种笔触。</em></h1><p>暗影与光亮并不是两种互相排斥的身份。它们共同构成你在不同处境中的选择与反应。</p><p className="report-version">{report.version===2?`${report.mode==="brief"?"探索版":"深入版"} · ${report.questionCount} 道题 · 十四维独立计分`:`历史版本 · 35 道题 · 与新版分数不可直接比较`}</p></div>
         <div className="result-portrait"><figure className="result-portrait-art"><img src={`${import.meta.env.BASE_URL}assets/sins/${axes[report.dominantSin].art}.webp`} alt={`${axes[report.dominantSin].sin}钴蓝古典雕塑卡牌`} /><figcaption>FIG. 0{[0,4,6,1,5,2,3].indexOf(report.dominantSin)+1} · THE ARCHETYPE</figcaption></figure><div className="result-portrait-copy"><span className="eyebrow">A PORTRAIT OF THE SHADOW</span><h2>此刻浮现的，<br/><em>{axes[report.dominantSin].sin}。</em></h2><p>{axes[report.dominantSin].sinNote}。这是问卷内部的相对高分，不代表人格标签或人群排名。</p><div className="portrait-divider"/><small>请把画面看作一道寓言，而不是一张判决书。没有任何单一特质可以定义完整的你。</small></div></div>
         {report.qualityNote&&<p className="quality-note" role="note"><strong>解读提醒 /</strong> {report.qualityNote}</p>}
         <div className="result-duo"><div className="result-emblem"><span>RELATIVELY HIGH VICE / 相对突出的暗影</span><div className="result-big-name">{axes[report.dominantSin].sin}<small>{report.scores[report.dominantSin].sin}</small></div><h3>{report.title}</h3><p>{axes[report.dominantSin].sinNote}</p></div><div className="result-emblem lit"><span>RELATIVELY HIGH VIRTUE / 相对突出的光亮</span><div className="result-big-name">{axes[report.dominantVirtue].virtue}<small>{report.scores[report.dominantVirtue].virtue}</small></div><h3>{report.subtitle}</h3><p>{axes[report.dominantVirtue].virtueNote}</p></div></div>
-        <div className="section-rule"><span>02 / YOUR FOURTEEN DIMENSIONS</span><span>0 — 100</span></div><h2 className="section-display">十四维性格星图</h2><div className="radar-group"><div className="radar-card"><h3><span className="dot-black"/> THE VICES <small>暗影轨道</small></h3><Radar values={report.scores.map(p=>p.sin)} labels={axes.map(a=>a.sin)} color="#3b3c45" name="七宗罪"/></div><div className="radar-card"><h3><span className="dot-blue"/> THE VIRTUES <small>光亮轨道</small></h3><Radar values={report.scores.map(p=>p.virtue)} labels={axes.map(a=>a.virtue)} color="#174bff" name="七美德"/></div></div>
+        <div className="section-rule"><span>02 / YOUR SEVEN ENGRAVINGS</span><span>TAP TO REVEAL / 点击翻面</span></div><div className="flip-deck-heading"><div><span>THE REVEAL</span><h2>翻开你的七重肖像</h2></div><p>七张古典钴蓝卡牌，十四个独立得分。点击任意卡牌翻面，看见每种本能与美德在这次回答中的位置。</p></div><FlipDeck report={report}/>
+        <div className="section-rule"><span>03 / YOUR FOURTEEN DIMENSIONS</span><span>0 — 100</span></div><h2 className="section-display">十四维性格星图</h2><div className="radar-group"><div className="radar-card"><h3><span className="dot-black"/> THE VICES <small>暗影轨道</small></h3><Radar values={report.scores.map(p=>p.sin)} labels={axes.map(a=>a.sin)} color="#3b3c45" name="七宗罪"/></div><div className="radar-card"><h3><span className="dot-blue"/> THE VIRTUES <small>光亮轨道</small></h3><Radar values={report.scores.map(p=>p.virtue)} labels={axes.map(a=>a.virtue)} color="#174bff" name="七美德"/></div></div>
         <div className="result-summary"><div><span>SHADOW INDEX</span><strong>{report.shadow}<small>/ 100</small></strong>暗影均值</div><div><span>LIGHT INDEX</span><strong className="blue-number">{report.light}<small>/ 100</small></strong>光亮均值</div><p>两个指数是本版七组题目得分的算术平均，仅适合在同一版测试中参考，不是道德等级或临床指标。</p></div>
-        <div className="section-rule"><span>03 / THE SEVEN CONTRASTS</span><span>VICE / VIRTUE</span></div><h2 className="section-display">你身上的七组对话</h2><PairBars report={report}/>
+        <div className="section-rule"><span>04 / THE SEVEN CONTRASTS</span><span>VICE / VIRTUE</span></div><h2 className="section-display">你身上的七组对话</h2><PairBars report={report}/>
         <div className="interpretation"><span className="eyebrow">PERSONAL NOTES / 给你的几行旁注</span><h3>{axes[report.dominantSin].sin}的影子，<br/>与{axes[report.dominantVirtue].virtue}的光亮。</h3><p>这份回答中，你在“{axes[report.dominantSin].insight}”的暗影指标得分相对突出；而“{axes[report.dominantVirtue].insight}”对应的美德指标也较为突出。两者独立计分，并不必然矛盾。</p><p>可以回想最近一次情绪强烈的情境：是什么触发了它？当时有哪些选择？下一次是否想尝试不同回应？</p></div>
         <div className="report-actions"><button className="primary-button" onClick={()=>downloadCard(report)}>下载分享卡 <span>↓</span></button><button className="outline-button" onClick={()=>void share()}>复制报告链接 <span>↗</span></button><button className="text-button" onClick={restart}>重新测试 →</button></div>{feedback&&<p className="feedback" role="status">{feedback}</p>}
         <p className="disclaimer">本问卷为尚未经心理测量学验证的原创趣味自我觉察工具，不用于心理诊断、道德评判或评估个人价值。题目与计分规则由本项目独立编制，并未使用其他平台的专有评分模型。分数只代表此版题目中的作答频率，非人群百分位。</p>
@@ -233,6 +288,6 @@ export default function Home() {
       <footer className="site-footer"><span>FIELDNOTES — THE HUMAN ATLAS</span><span>DESIGNED IN COBALT & QUIETUDE</span><span>© 2026 · INDEPENDENT EDITION</span></footer>
     </main>
 
-    <aside className="right-rail"><div className="right-top"><span>ATLAS / STATUS</span><span>✧</span></div><div className="right-panel"><p className="eyebrow">YOUR JOURNEY / 旅程</p><div className="progress-ring" style={{background:`conic-gradient(#174bff ${displayProgress*3.6}deg,#e7e8e5 0)`}}><div><strong>{displayProgress}<small>%</small></strong><span>已完成</span></div></div><div className="right-metrics"><div><strong>{displayAnswered}<small> / {displayTotal}</small></strong><span>已回答</span></div><div><strong>{7}</strong><span>组对照主题</span></div></div><div className="right-divider"/><p className="eyebrow">SEVEN PAIRS / 七重对照</p><div className="right-axis-list">{axes.map((axis,i)=>{const total=view==="result"&&report?(report.version===2?(report.mode==="brief"?6:10):5):perPair;const count=view==="result"&&report?total:answers.slice(i*perPair,i*perPair+perPair).filter(v=>v!==null).length;return <div className="right-axis" key={axis.sin}><span>{axis.sigil}</span><div><strong>{axis.sin}<em> / </em>{axis.virtue}</strong><div className="micro-bars">{Array.from({length:total},(_,j)=><i key={j} className={j<count?"filled":""}/>)}</div></div><small>{count}/{total}</small></div>})}</div></div><div className="right-quote"><span className="quote-mark">“</span><p>There is no light without an inner shadow.</p><span>— A NOTE ON HUMAN NATURE</span></div><div className="privacy-note"><span>◌</span> 不需注册 · 不采集身份信息</div></aside>
+    <aside className="right-rail"><div className="right-top"><span>ATLAS / STATUS</span><span>✧</span></div><div className="right-panel"><p className="eyebrow">YOUR JOURNEY / 旅程</p><div className="progress-ring" style={{background:`conic-gradient(#174bff ${displayProgress*3.6}deg,#e7e8e5 0)`}}><div><strong>{displayProgress}<small>%</small></strong><span>已完成</span></div></div><div className="right-metrics"><div><strong>{displayAnswered}<small> / {displayTotal}</small></strong><span>已回答</span></div><div><strong>{view==="quiz"?"✓":"14"}</strong><span>{view==="quiz"?"匿名探索":"个独立维度"}</span></div></div><div className="right-divider"/>{view==="quiz"?<div className="right-neutral"><span>EVERY ANSWER COUNTS</span><h3>让答案先于标签。</h3><p>不会显示当前题目的所属维度，也不会提前揭示任何特质分数。</p><div className="neutral-orbit" aria-hidden="true">✧</div><small>YOUR ATLAS UNFOLDS AFTER THE FINAL ANSWER</small></div>:<><p className="eyebrow">SEVEN PAIRS / 七重对照</p><div className="right-axis-list">{axes.map(axis=><div className="right-axis" key={axis.sin}><span>{axis.sigil}</span><div><strong>{axis.sin}<em> / </em>{axis.virtue}</strong><div className="micro-bars">{Array.from({length:7},(_,j)=><i key={j} className={view==="result"?"filled":""}/>)}</div></div></div>)}</div></>}</div><div className="right-quote"><span className="quote-mark">“</span><p>There is no light without an inner shadow.</p><span>— A NOTE ON HUMAN NATURE</span></div><div className="privacy-note"><span>◌</span> 不需注册 · 不采集身份信息</div></aside>
   </div>;
 }

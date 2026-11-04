@@ -142,7 +142,13 @@ const bank: Question[] = axes.flatMap((_,axis) => Array.from({length:5},(_,i) =>
 
 export function questionsForMode(mode: QuizMode): Question[] {
   const order=mode==="deep"?fullOrder:briefOrder;
-  return axes.flatMap((_,axis)=>order.map(i=>bank[axis*10+i]));
+  // Interleave constructs instead of showing each axis as a consecutive block.
+  // This is a fixed, reproducible order so scoring and saved responses stay aligned.
+  const axisOrder=[0,4,2,6,1,5,3];
+  return order.flatMap((itemIndex,round)=>{
+    const rotated=axisOrder.map((_,i)=>axisOrder[(i+round*3)%axisOrder.length]);
+    return rotated.map(axis=>bank[axis*10+itemIndex]);
+  });
 }
 export const questions = questionsForMode("deep");
 
