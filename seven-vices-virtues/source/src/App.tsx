@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { axes, frequencyLabels, modeInfo, questionsForMode, scoreAnswers, type QuizMode, type Report } from "../lib/quiz";
+import { interpretTrait, reportReflection } from "./interpretations";
+import { downloadCard } from "./sharePoster";
 
 type View = "home" | "quiz" | "result" | "archive" | "method";
 // v2 uses interleaved question order; older in-progress answers cannot be reinterpreted.
@@ -15,8 +17,9 @@ function Seal({ small = false }: { small?: boolean }) {
 }
 
 const cardOrder=[0,4,6,1,5,2,3] as const;
-function CardArt({ axis, loading="lazy" }: {axis:number;loading?:"lazy"|"eager"}) {
-  return <img src={`${import.meta.env.BASE_URL}assets/sins/${axes[axis].art}.webp`} loading={loading} alt={`${axes[axis].sin} · ${axes[axis].en.split(" / ")[0]}，白底钴蓝大理石雕塑卡牌`}/>;
+const virtueArt=["humility","kindness","patience","diligence","generosity","temperance","chastity"] as const;
+function CardArt({ axis, loading="lazy", kind="sin" }: {axis:number;loading?:"lazy"|"eager";kind?:"sin"|"virtue"}) {
+  return <img src={`${import.meta.env.BASE_URL}assets/${kind==="sin"?"sins":"virtues"}/${kind==="sin"?axes[axis].art:virtueArt[axis]}.webp`} loading={loading} alt={`${kind==="sin"?axes[axis].sin:axes[axis].virtue} · 白底钴蓝大理石雕塑卡牌`}/>;
 }
 
 function HeroCardComposition() {
@@ -40,7 +43,7 @@ function FlipDeck({report}:{report:Report}) {
           <span className="flip-card-face flip-card-front"><CardArt axis={axisIndex}/><span className="flip-hint"><span>✧</span> CLICK TO REVEAL <span>↻</span></span></span>
           <span className="flip-card-face flip-card-back">
             <span className="flip-back-top"><span>FIELDNOTES / {String(pos+1).padStart(2,"0")}</span><span>✳</span></span>
-            <span className="flip-back-emblem">✦</span>
+            <span className="flip-back-virtue-portrait"><CardArt axis={axisIndex} kind="virtue"/></span>
             <span className="flip-back-heading">TWO SIDES<br/>OF ONE SELF</span>
             <span className="flip-back-rule"/>
             <span className="flip-score-group"><span className="flip-score-title">SHADOW / {axis.sin}</span><span className="flip-score-number">{pair.sin}<small>/100</small></span><span className="flip-score-track"><span style={{width:`${pair.sin}%`}}/></span></span>
@@ -106,6 +109,21 @@ function PairBars({ report }: { report: Report }) {
     <span className="pair-name virtue-name"><small>{p.virtue}</small>{axis.virtue}</span></div>})}</div>;
 }
 
+function TraitExplanations({report}:{report:Report}) {
+  return <section className="trait-reading" aria-labelledby="reading-title">
+    <div className="section-rule"><span>05 / THE NOTES BETWEEN THE LINES</span><span>OPEN EACH NOTE / 点击展开</span></div>
+    <h2 className="section-display" id="reading-title">十四种倾向，各有故事。</h2>
+    <p className="reading-intro">这些文字依据你在本问卷的回答频率分为三个解释区间，并结合社会比较、情绪调节、自我控制、共情等心理学概念撰写。请用真实经历检验它，任何句子都不是对你的诊断。</p>
+    <div className="reading-columns">{(["sin","virtue"] as const).map(kind=><div className={`reading-column ${kind}`} key={kind}>
+      <div className="reading-column-header"><span>{kind==="sin"?"I / THE SHADOW":"II / THE LIGHT"}</span><strong>{kind==="sin"?"七种暗影":"七种光亮"}</strong></div>
+      {axes.map((axis,i)=>{const note=interpretTrait(i,kind,report.scores[i][kind]);return <details className="trait-entry" key={axis.sigil} open={(kind==="sin"&&i===report.dominantSin)||(kind==="virtue"&&i===report.dominantVirtue)}>
+        <summary><span className="trait-index">{axis.sigil}</span><span className="trait-title"><strong>{note.name}</strong><small>{note.theme}</small></span><span className="trait-score">{note.score}<small>/100</small></span><span className="trait-chevron">＋</span></summary>
+        <div className="trait-entry-body"><span className="trait-concept">观察视角 / {note.concept}</span><p>{note.body}</p><p className="trait-prompt"><strong>一个小实验：</strong>{note.prompt}</p></div>
+      </details>})}</div>)}</div>
+    <p className="reading-note">“低 / 中 / 高”仅指本测试的预设分数段（0–34、35–69、70–100），不是人群常模或人格等级。回答频率受记忆偏差、近期情境和自我呈现影响。</p>
+  </section>;
+}
+
 function isReport(value: unknown): value is Report {
   if (!value || typeof value !== "object") return false;
   const r = value as Partial<Report>;
@@ -139,24 +157,6 @@ function shareLink(report: Report): string {
   return `${window.location.origin}${window.location.pathname}#report=${encodeReport(report)}`;
 }
 
-function downloadCard(report: Report) {
-  const canvas=document.createElement("canvas");canvas.width=1200;canvas.height=1600;const c=canvas.getContext("2d");if(!c)return;
-  c.fillStyle="#fff";c.fillRect(0,0,1200,1600);c.strokeStyle="#d1d0c9";c.lineWidth=2;c.strokeRect(48,48,1104,1504);
-  c.fillStyle="#174bff";c.fillRect(90,104,45,5);c.fillStyle="#272932";c.font="30px Georgia,serif";c.fillText("FIELDNOTES",155,118);
-  c.font="24px Georgia,serif";c.fillStyle="#77777b";c.fillText("THE ATLAS OF VICES & VIRTUES",90,170);
-  c.fillStyle="#17191c";c.font="bold 84px serif";c.fillText("人 性 双 生 图 鉴",86,310);
-  c.font="italic 46px Georgia,serif";c.fillStyle="#174bff";c.fillText("A Portrait of Two Selves",90,380);
-  c.strokeStyle="#c8c9c9";c.beginPath();c.moveTo(90,432);c.lineTo(1110,432);c.stroke();
-  c.font="27px serif";c.fillStyle="#5c5c64";c.fillText("主导暗影 / DOMINANT SHADOW",90,500);c.fillText("主导光亮 / DOMINANT LIGHT",650,500);
-  c.font="bold 72px serif";c.fillStyle="#252831";c.fillText(axes[report.dominantSin].sin,90,600);c.fillStyle="#174bff";c.fillText(axes[report.dominantVirtue].virtue,650,600);
-  c.font="25px Georgia,serif";c.fillStyle="#5d5e69";c.fillText(`${report.title}  ·  ${report.shadow}/100`,90,648);c.fillText(`${report.subtitle}  ·  ${report.light}/100`,650,648);
-  c.strokeStyle="#d3d3d0";c.beginPath();c.moveTo(90,700);c.lineTo(1110,700);c.stroke();
-  c.font="26px Georgia,serif";c.fillStyle="#34343a";c.fillText("THE SEVEN CONTRASTS  /  七组特质对照",90,755);
-  axes.forEach((axis,i)=>{const y=823+i*83;const p=report.scores[i];c.font="27px serif";c.fillStyle="#272932";c.fillText(axis.sin,90,y);c.fillText(String(p.sin),175,y);c.fillStyle="#174bff";c.fillText(String(p.virtue),900,y);c.fillText(axis.virtue,987,y);c.fillStyle="#e9e9e5";c.fillRect(260,y-25,600,18);c.fillStyle="#4b4e58";c.fillRect(260,y-25,Math.round(p.sin*2.9),8);c.fillStyle="#174bff";c.fillRect(260,y-15,Math.round(p.virtue*2.9),8);});
-  c.font="24px serif";c.fillStyle="#656873";c.fillText("独立原创 · 娱乐性自我觉察，不作为心理诊断",90,1490);
-  canvas.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`FIELDNOTES_人性图鉴_${report.id.slice(0,8)}.png`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);},'image/png');
-}
-
 export default function Home() {
   const [view,setView]=useState<View>("home");
   const [mode,setMode]=useState<QuizMode>("deep");
@@ -166,6 +166,7 @@ export default function Home() {
   const [archive,setArchive]=useState<Report[]>([]);
   const [busy,setBusy]=useState(false);
   const [feedback,setFeedback]=useState("");
+  const [galleryKind,setGalleryKind]=useState<"sin"|"virtue">("sin");
   const [ready,setReady]=useState(false);
   const advanceTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const activeQuestions=useMemo(()=>questionsForMode(mode),[mode]);
@@ -220,6 +221,7 @@ export default function Home() {
   const goPrevious=()=>{clearAdvance();setIndex(i=>Math.max(0,i-1));setFeedback("");};
   const goArchive=()=>{clearAdvance();setView("archive");setFeedback("");setArchive(loadReports());window.history.replaceState(null,"",window.location.pathname);};
   const share=async()=>{if(!report)return;const url=shareLink(report);try{await navigator.clipboard.writeText(url);setFeedback("报告链接已复制；链接本身包含匿名汇总分数，知道链接的人都能查看。");}catch{setFeedback(`分享链接：${url}`);}};
+  const invite=async()=>{const url="https://hardzionl.github.io/ai-interview-lab/seven-vices-virtues/";try{await navigator.clipboard.writeText(url);setFeedback("好友测试入口已复制。朋友打开后会独立开始测试，看不到你的个人分数。");}catch{setFeedback(`测试入口：${url}`);}};
   const move=(destination:View)=>{clearAdvance();if(destination==="archive")void goArchive();else{setFeedback("");setView(destination);if(destination==="home"||destination==="method")window.history.replaceState(null,"",window.location.pathname);}};
 
   return <div className="site-shell">
@@ -248,7 +250,7 @@ export default function Home() {
         <section className="intro-bottom"><div className="section-number">01 / THE INQUIRY</div><div className="intro-bottom-title">不必完美，<br/><em>只需诚实。</em></div><div className="intro-bottom-copy"><p>请根据过去三个月的真实生活作答，选择行为出现的频率，而不是“应该”怎样。它是一份原创自我觉察问卷，并非经验证的心理量表。</p><div className="metric-row"><span><strong>42 / 70</strong> 道行为题</span><span><strong>14</strong> 个独立指标</span><span><strong>5</strong> 级频率量尺</span></div></div></section>
         <section className="home-duality"><article className="duality-card"><span className="card-index">I — VII / SHADOW</span><div className="sunmark dark-sun">✳</div><h3>七宗罪 <small>THE VICES</small></h3><p>那些使我们热烈、敏感、执着，有时也让我们失去平衡的本能。</p></article><article className="duality-card light-card"><span className="card-index">VIII — XIV / LIGHT</span><div className="sunmark blue-sun">✧</div><h3>七美德 <small>THE VIRTUES</small></h3><p>那些让我们愿意倾听、分享、等待、节制，并与世界友善相处的能力。</p></article></section>
         <section className="mode-section" aria-labelledby="mode-title"><div className="section-rule"><span>02 / CHOOSE YOUR EXPLORATION</span><span>YOUR PACE / YOUR CHOICE</span></div><h2 className="section-display" id="mode-title">选择你的探索深度</h2><div className="mode-options">{(["brief","deep"] as const).map(value=><button key={value} className={`mode-card ${mode===value?"selected":""}`} aria-pressed={mode===value} onClick={()=>changeMode(value)}><span className="mode-index">{value==="brief"?"I / THE SKETCH":"II / THE PORTRAIT"}</span><span className="mode-count">{modeInfo[value].count}<small> QUESTIONS</small></span><strong>{modeInfo[value].name}</strong><span className="mode-desc">每个特质 {modeInfo[value].perTrait} 题 · {modeInfo[value].time}</span><span className="mode-tick">{mode===value?"✓ 当前选择":"选择此版本 ↗"}</span></button>)}</div><p className="mode-caveat">同一题型使用五级频率作答；两种长度不可视为等价的正式心理测量。更长版本能提供更多观察线索，但仍未经过信效度验证。</p><button className="primary-button" onClick={resume}>开始 {modeInfo[mode].count} 道探索 <span>↗</span></button></section>
-        <section className="gallery-section" aria-labelledby="gallery-title"><div className="section-rule"><span>03 / THE SEVEN ENGRAVINGS</span><span>COBALT & MARBLE</span></div><h2 className="section-display" id="gallery-title">七宗罪 · 古典图鉴</h2><p className="gallery-intro">大理石雕塑、天球轨道与钴蓝星芒。七幅寓言式人物卡由你提供，原比例完整展示；完成测试后，七张卡牌会成为可以翻阅的个人结果图鉴。</p><div className="card-gallery">{cardOrder.map((axisIndex,i)=><figure className="gallery-card" key={axes[axisIndex].art}><div className="gallery-art"><CardArt axis={axisIndex}/></div><figcaption><span>{String(i+1).padStart(2,"0")}</span><strong>{axes[axisIndex].sin}</strong><small>{axes[axisIndex].en.split(" / ")[0]}</small></figcaption></figure>)}</div></section>
+        <section className="gallery-section" aria-labelledby="gallery-title"><div className="section-rule"><span>03 / THE FOURTEEN ENGRAVINGS</span><span>COBALT & MARBLE</span></div><h2 className="section-display" id="gallery-title">光与影 · 十四张古典图鉴</h2><p className="gallery-intro">十四幅原创白底钴蓝雕塑寓言：七宗罪与七美德完整配对。切换两套画卷，感受同一片星空下的人性两面。</p><div className="gallery-switch" role="group" aria-label="切换图鉴画卷"><button className={galleryKind==="sin"?"selected":""} aria-pressed={galleryKind==="sin"} onClick={()=>setGalleryKind("sin")}>Ⅰ · 七宗罪 / VICES</button><button className={galleryKind==="virtue"?"selected":""} aria-pressed={galleryKind==="virtue"} onClick={()=>setGalleryKind("virtue")}>Ⅱ · 七美德 / VIRTUES</button></div><div className="card-gallery">{cardOrder.map((axisIndex,i)=><figure className="gallery-card" key={`${galleryKind}-${axes[axisIndex].art}`}><div className="gallery-art"><CardArt axis={axisIndex} kind={galleryKind}/></div><figcaption><span>{String(i+1).padStart(2,"0")}</span><strong>{galleryKind==="sin"?axes[axisIndex].sin:axes[axisIndex].virtue}</strong><small>{axes[axisIndex].en.split(" / ")[galleryKind==="sin"?0:1]}</small></figcaption></figure>)}</div></section>
       </>}
 
       {view==="quiz"&&<section className="question-section"><div className="quiz-heading"><span className="eyebrow"><span className="eyebrow-line"/> A MOMENT OF REFLECTION · {modeInfo[mode].name}</span><span className="question-pager"><small>QUESTION</small> {String(index+1).padStart(2,'0')} <span>/ {activeQuestions.length}</span></span></div>
@@ -258,15 +260,17 @@ export default function Home() {
         {feedback&&<p className="feedback" role="status">{feedback}</p>}</section>}
 
       {view==="result"&&report&&<section className="result-section"><div className="result-opening"><p className="eyebrow"><span className="eyebrow-line"/> YOUR PERSONAL ATLAS / REPORT NO. {report.id.slice(0,8).toUpperCase()}</p><span className="result-stamp">✦</span><h1>你的灵魂，<br/><em>有两种笔触。</em></h1><p>暗影与光亮并不是两种互相排斥的身份。它们共同构成你在不同处境中的选择与反应。</p><p className="report-version">{report.version===2?`${report.mode==="brief"?"探索版":"深入版"} · ${report.questionCount} 道题 · 十四维独立计分`:`历史版本 · 35 道题 · 与新版分数不可直接比较`}</p></div>
-        <div className="result-portrait"><figure className="result-portrait-art"><img src={`${import.meta.env.BASE_URL}assets/sins/${axes[report.dominantSin].art}.webp`} alt={`${axes[report.dominantSin].sin}钴蓝古典雕塑卡牌`} /><figcaption>FIG. 0{[0,4,6,1,5,2,3].indexOf(report.dominantSin)+1} · THE ARCHETYPE</figcaption></figure><div className="result-portrait-copy"><span className="eyebrow">A PORTRAIT OF THE SHADOW</span><h2>此刻浮现的，<br/><em>{axes[report.dominantSin].sin}。</em></h2><p>{axes[report.dominantSin].sinNote}。这是问卷内部的相对高分，不代表人格标签或人群排名。</p><div className="portrait-divider"/><small>请把画面看作一道寓言，而不是一张判决书。没有任何单一特质可以定义完整的你。</small></div></div>
+        <div className="result-portrait"><div className="result-portrait-art-stack"><figure className="result-portrait-art"><CardArt axis={report.dominantSin}/><figcaption>SHADOW · {axes[report.dominantSin].sin}</figcaption></figure><figure className="result-portrait-art"><CardArt axis={report.dominantVirtue} kind="virtue"/><figcaption>LIGHT · {axes[report.dominantVirtue].virtue}</figcaption></figure></div><div className="result-portrait-copy"><span className="eyebrow">A PORTRAIT OF BOTH SIDES</span><h2>暗影落在<em>{axes[report.dominantSin].sin}</em>，<br/>光亮映着<em>{axes[report.dominantVirtue].virtue}。</em></h2><p>{axes[report.dominantSin].sinNote}；与此同时，{axes[report.dominantVirtue].virtueNote}。</p><div className="portrait-divider"/><small>请把画面看作一道寓言，而不是一张判决书。没有任何单一特质可以定义完整的你。</small></div></div>
         {report.qualityNote&&<p className="quality-note" role="note"><strong>解读提醒 /</strong> {report.qualityNote}</p>}
         <div className="result-duo"><div className="result-emblem"><span>RELATIVELY HIGH VICE / 相对突出的暗影</span><div className="result-big-name">{axes[report.dominantSin].sin}<small>{report.scores[report.dominantSin].sin}</small></div><h3>{report.title}</h3><p>{axes[report.dominantSin].sinNote}</p></div><div className="result-emblem lit"><span>RELATIVELY HIGH VIRTUE / 相对突出的光亮</span><div className="result-big-name">{axes[report.dominantVirtue].virtue}<small>{report.scores[report.dominantVirtue].virtue}</small></div><h3>{report.subtitle}</h3><p>{axes[report.dominantVirtue].virtueNote}</p></div></div>
         <div className="section-rule"><span>02 / YOUR SEVEN ENGRAVINGS</span><span>TAP TO REVEAL / 点击翻面</span></div><div className="flip-deck-heading"><div><span>THE REVEAL</span><h2>翻开你的七重肖像</h2></div><p>七张古典钴蓝卡牌，十四个独立得分。点击任意卡牌翻面，看见每种本能与美德在这次回答中的位置。</p></div><FlipDeck report={report}/>
         <div className="section-rule"><span>03 / YOUR FOURTEEN DIMENSIONS</span><span>0 — 100</span></div><h2 className="section-display">十四维性格星图</h2><div className="radar-group"><div className="radar-card"><h3><span className="dot-black"/> THE VICES <small>暗影轨道</small></h3><Radar values={report.scores.map(p=>p.sin)} labels={axes.map(a=>a.sin)} color="#3b3c45" name="七宗罪"/></div><div className="radar-card"><h3><span className="dot-blue"/> THE VIRTUES <small>光亮轨道</small></h3><Radar values={report.scores.map(p=>p.virtue)} labels={axes.map(a=>a.virtue)} color="#174bff" name="七美德"/></div></div>
         <div className="result-summary"><div><span>SHADOW INDEX</span><strong>{report.shadow}<small>/ 100</small></strong>暗影均值</div><div><span>LIGHT INDEX</span><strong className="blue-number">{report.light}<small>/ 100</small></strong>光亮均值</div><p>两个指数是本版七组题目得分的算术平均，仅适合在同一版测试中参考，不是道德等级或临床指标。</p></div>
         <div className="section-rule"><span>04 / THE SEVEN CONTRASTS</span><span>VICE / VIRTUE</span></div><h2 className="section-display">你身上的七组对话</h2><PairBars report={report}/>
-        <div className="interpretation"><span className="eyebrow">PERSONAL NOTES / 给你的几行旁注</span><h3>{axes[report.dominantSin].sin}的影子，<br/>与{axes[report.dominantVirtue].virtue}的光亮。</h3><p>这份回答中，你在“{axes[report.dominantSin].insight}”的暗影指标得分相对突出；而“{axes[report.dominantVirtue].insight}”对应的美德指标也较为突出。两者独立计分，并不必然矛盾。</p><p>可以回想最近一次情绪强烈的情境：是什么触发了它？当时有哪些选择？下一次是否想尝试不同回应？</p></div>
-        <div className="report-actions"><button className="primary-button" onClick={()=>downloadCard(report)}>下载分享卡 <span>↓</span></button><button className="outline-button" onClick={()=>void share()}>复制报告链接 <span>↗</span></button><button className="text-button" onClick={restart}>重新测试 →</button></div>{feedback&&<p className="feedback" role="status">{feedback}</p>}
+        <div className="interpretation"><span className="eyebrow">PERSONAL NOTES / 给你的几行旁注</span><h3>{axes[report.dominantSin].sin}的影子，<br/>与{axes[report.dominantVirtue].virtue}的光亮。</h3><p>{reportReflection(report)}</p><p>可以回想最近一次情绪强烈的情境：是什么触发了它？当时有哪些选择？下一次是否想尝试不同回应？</p></div>
+        <TraitExplanations report={report}/>
+        <div className="invite-panel"><div><span className="eyebrow">AN INVITATION / 邀请共鸣</span><h3>让朋友也照见自己的光与影。</h3><p>分享图内已嵌入测试首页二维码。扫码开始独立测试，不会看到你的结果。分享图包含你的匿名十四维分数，请自主决定分享范围。</p></div><img src={`${import.meta.env.BASE_URL}assets/invite-qr.png`} alt="扫码打开七宗罪与七美德测试首页的邀请二维码" width="142" height="142"/></div>
+        <div className="report-actions"><button className="primary-button" onClick={()=>{setFeedback("正在绘制高清长图…");void downloadCard(report).then(()=>setFeedback("分享长图已生成：包含十四维雷达图、完整分数和好友测试二维码。")).catch((e:unknown)=>setFeedback(e instanceof Error?e.message:"生成长图失败，请重试"));}}>下载分享长图 <span>↓</span></button><button className="outline-button" onClick={()=>void invite()}>复制好友测试入口 <span>↗</span></button><button className="text-button" onClick={()=>void share()}>复制个人报告链接 ↗</button><button className="text-button" onClick={restart}>重新测试 →</button></div>{feedback&&<p className="feedback" role="status">{feedback}</p>}
         <p className="disclaimer">本问卷为尚未经心理测量学验证的原创趣味自我觉察工具，不用于心理诊断、道德评判或评估个人价值。题目与计分规则由本项目独立编制，并未使用其他平台的专有评分模型。分数只代表此版题目中的作答频率，非人群百分位。</p>
       </section>}
 
@@ -279,10 +283,10 @@ export default function Home() {
         <div className="method-columns">
           <div><span>01 / STRUCTURE</span><h2>42 题或 70 题，十四个指标。</h2><p>每个特质采用 3 或 5 条原创行为陈述。回顾最近三个月，根据真实生活出现频率选择；两档分别每组 6 题或 10 题。</p></div>
           <div><span>02 / SCORING</span><h2>独立计算，包含反向题。</h2><p>五级答案记 0、1、2、3、4 分，反向题使用 4 减原始分。同一特质题项求平均后除以 4、乘以 100。十四个维度各自计算，互不强迫互补。该分数不是人群百分位。</p></div>
-          <div><span>03 / INTERPRETATION</span><h2>不把微小分差说成“人格”。</h2><p>最高分只是问卷内部的相对排序；若头两名相差不超过 5 分会提醒不稳定。未经过信效度、常模、因子结构及公平性检验，不能据此评判道德或心理健康。</p></div>
+          <div><span>03 / INTERPRETATION</span><h2>分层叙述，依然不等于人格判定。</h2><p>十四维各按回答频率落入三个预设解读区间，结合具体行为、可能的情境原因和可尝试的小实验。文字为原创、非临床的反思性叙述，可能产生巴纳姆效应；请据自身经历检验，不能把符合感当作测量效度。未经过信效度、常模、因子结构及公平性检验。</p></div>
           <div><span>04 / PRIVACY & PORTABILITY</span><h2>没有服务器，也不上传答案。</h2><p>评分全部在你的浏览器中完成。未完成进度、最多 20 份匿名汇总报告只存储在当前设备。分享链接的片段中包含匿名汇总分数，接收者可读取甚至修改；因此它不是可验证的成绩凭证。旧平台的历史报告不会自动同步。</p></div>
         </div>
-        <div className="method-sources"><h3>研究依据与灵感</h3><p>创作参考心理测量关于可解释性、信度、效度与公平性的规范及反向题方法效应，但本问卷未经验证。七宗罪与七美德属于文学与思想母题，非临床人格分类。全部题目和计分模型独立编写。</p><a href="https://www.testingstandards.net/" target="_blank" rel="noreferrer">AERA / APA / NCME 测量标准 ↗</a><a href="https://www.arealme.com/seven-deadly-sins-seven-virtues-quiz/cn/" target="_blank" rel="noreferrer">大众测试形式参考 ↗</a></div>
+        <div className="method-sources"><h3>研究依据与灵感</h3><p>解读选取了可观察的行为方向，借鉴自我调节、情绪调节、社会比较和共情研究；并非把其中任一正式量表或研究结论直接等同于十四种文学概念。相关研究为概念写作提供背景，不为本问卷的准确度背书。</p><a href="https://ncme.org/resources/books/testing-standards/" target="_blank" rel="noreferrer">AERA / APA / NCME · 测量规范 ↗</a><a href="https://pubmed.ncbi.nlm.nih.gov/9457784/" target="_blank" rel="noreferrer">Gross (1998) · 情绪调节研究 ↗</a><a href="https://pubmed.ncbi.nlm.nih.gov/17201571/" target="_blank" rel="noreferrer">Steel (2007) · 拖延行为元分析 ↗</a><a href="https://doi.org/10.1037/0022-3514.44.1.113" target="_blank" rel="noreferrer">Davis (1983) · 共情多维研究 ↗</a></div>
         <button className="primary-button" onClick={resume}>开始 {modeInfo[mode].count} 道探索 <span>↗</span></button>
       </section>}
       <footer className="site-footer"><span>FIELDNOTES — THE HUMAN ATLAS</span><span>DESIGNED IN COBALT & QUIETUDE</span><span>© 2026 · INDEPENDENT EDITION</span></footer>

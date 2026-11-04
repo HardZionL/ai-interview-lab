@@ -125,3 +125,42 @@
 @media(max-width:790px){.hero-card-composition{height:340px}.hero-art-card-center{max-width:184px}.hero-art-card-left,.hero-art-card-right{max-width:142px}.flip-deck{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.question-main{padding:30px 25px}.hero-art-label{bottom:5px}}
 @media(max-width:530px){.hero-card-composition{height:304px}.hero-art-card-center{max-width:154px}.hero-art-card-left,.hero-art-card-right{max-width:114px}.hero-art-label{font-size:8px}.flip-deck{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:45px}.flip-deck-heading{display:block}.flip-deck-heading h2{font-size:27px}.flip-deck-heading>p{margin-top:12px;font-size:11px}.flip-card-back{padding:11px}.flip-back-heading{font-size:12px}.flip-back-emblem{font-size:28px}.flip-score-number{font-size:32px}.flip-score-title{font-size:9px}.flip-back-note{font-size:9px}.flip-back-top,.flip-back-bottom{font-size:8px}.question-main{padding:26px 18px 27px}.question-main h1{font-size:26px;min-height:110px}.question-pager small{display:none}.question-topline{font-size:9px;margin-bottom:24px}.question-instruction{font-size:11px}.frequency-list .answer-option{min-height:58px}.quiz-footer{padding-top:20px}.auto-advance-hint{font-size:10px!important}}
 @media(prefers-reduced-motion:reduce){.flip-card-inner{transition:none}.hero-art-card{transition:none}}
+
+/* FIELDNOTES v4 — paired virtue engravings, deep marginalia, invitation folio. */
+.gallery-switch{display:inline-flex;border:1px solid #cbd6ee;background:#fff;margin:5px 0 25px;padding:4px;gap:3px}
+.gallery-switch button{border:0;background:transparent;padding:13px 20px;color:#7e8595;font:600 10px var(--sans);letter-spacing:.1em;transition:.2s}
+.gallery-switch button.selected{background:var(--cobalt);color:#fff}.gallery-switch button:not(.selected):hover{color:var(--cobalt);background:#f1f4ff}
+.flip-back-virtue-portrait{display:block;position:relative;align-self:center;width:45%;height:26%;margin:3px 0;overflow:hidden;border:1px solid #e4e8f1;box-shadow:0 7px 15px #15389c15;background:white}
+.flip-back-virtue-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 39%}
+.flip-back-virtue-portrait:after{content:"✦";position:absolute;top:4px;right:6px;font-size:12px;color:var(--cobalt);text-shadow:0 1px #fff}
+.flip-card-back{gap:4px}.flip-back-heading{font-size:clamp(12px,1.2vw,18px)}
+.result-portrait{grid-template-columns:minmax(0,360px) 1fr;gap:30px}
+.result-portrait-art-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}
+.result-portrait-art img{width:100%;height:auto}.result-portrait-art figcaption{font-size:8px;letter-spacing:.06em}
+.result-portrait-copy{padding-right:5px}.result-portrait-copy h2{font-size:clamp(23px,2.8vw,33px)}
+.reading-intro{font-size:12px;color:#777d89;line-height:2.1;margin:-4px 0 25px;max-width:730px}
+.reading-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.reading-column{min-width:0;border:1px solid #dfe4ec;background:#fff}
+.reading-column-header{background:#f2f3f5;border-bottom:1px solid #dfe4ec;padding:22px;display:flex;gap:13px;align-items:baseline;justify-content:space-between}
+.reading-column.virtue .reading-column-header{background:#edf2ff}
+.reading-column-header span{color:#8991a1;font:500 9px Georgia,serif;letter-spacing:.09em}
+.reading-column-header strong{font:400 22px 'Songti SC',serif;color:#2d3341}.reading-column.virtue .reading-column-header strong{color:var(--cobalt)}
+.trait-entry{border-bottom:1px solid #e6e8ed}.trait-entry:last-child{border-bottom:0}
+.trait-entry summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:18px 13px;min-height:83px;transition:.18s}
+.trait-entry summary::-webkit-details-marker{display:none}.trait-entry summary:hover{background:#f8faff}.trait-entry[open] summary{background:#f6f8ff}
+.trait-index{font:13px Georgia,serif;color:#a1a9b7;width:22px;flex:none}.trait-title{display:flex;flex-direction:column;min-width:0;flex:1;gap:4px}
+.trait-title strong{font:400 19px 'Songti SC',serif}.trait-title small{font-size:10px;line-height:1.5;color:#858d9d;white-space:normal}
+.trait-score{font:500 25px Georgia,serif;color:#404854;white-space:nowrap}.reading-column.virtue .trait-score{color:var(--cobalt)}
+.trait-score small{font-size:10px;color:#adb2c0;margin-left:3px}.trait-chevron{font-size:16px;color:var(--cobalt);margin-left:0;transition:transform .2s}
+.trait-entry[open] .trait-chevron{transform:rotate(45deg)}
+.trait-entry-body{padding:0 18px 20px 45px;background:#fafbfe}.trait-concept{display:block;font-size:10px;color:var(--cobalt);padding-top:13px;letter-spacing:.05em}
+.trait-entry-body p{margin:10px 0 0;font-size:12px;line-height:2.08;color:#616b7a}
+.trait-entry-body .trait-prompt{border-left:2px solid #aebef6;padding:4px 0 4px 10px;color:#464e60}
+.trait-entry-body .trait-prompt strong{color:var(--cobalt);font-weight:600}
+.reading-note{font-size:11px;line-height:2;color:#9095a2;margin:20px 0 35px}
+.invite-panel{border:1px solid #cfdaf1;background:linear-gradient(110deg,#fff 30%,#f1f5ff);display:flex;align-items:center;justify-content:space-between;gap:22px;padding:24px 30px;margin:22px 0}
+.invite-panel h3{font:400 clamp(20px,2.2vw,27px) 'Songti SC',serif;margin:12px 0}.invite-panel p{font-size:11px;color:#778092;line-height:2;max-width:540px;margin:0}
+.invite-panel img{flex:none;width:142px;height:142px;object-fit:contain;border:1px solid #d6dfee;background:white;padding:5px}
+@media(max-width:1250px){.result-portrait{grid-template-columns:minmax(0,280px) 1fr}.reading-columns{gap:12px}.trait-entry summary{padding:15px 9px}}
+@media(max-width:790px){.result-portrait{display:block}.result-portrait-art-stack{max-width:330px;margin:auto}.result-portrait-copy{padding:22px 0 0}.reading-columns{grid-template-columns:1fr}.trait-entry summary{padding:18px 17px}}
+@media(max-width:530px){.gallery-switch{width:100%;display:flex}.gallery-switch button{flex:1;padding:12px 5px;font-size:9px}.reading-column-header{padding:17px}.trait-entry-body{padding:0 15px 18px 38px}.invite-panel{padding:18px;gap:10px;align-items:start}.invite-panel img{width:94px;height:94px}.invite-panel h3{font-size:19px}.invite-panel p{font-size:10px}.flip-back-virtue-portrait{height:23%;width:44%}.flip-card-back{gap:2px}.flip-back-heading{font-size:11px}}
