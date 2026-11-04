@@ -164,3 +164,76 @@
 @media(max-width:1250px){.result-portrait{grid-template-columns:minmax(0,280px) 1fr}.reading-columns{gap:12px}.trait-entry summary{padding:15px 9px}}
 @media(max-width:790px){.result-portrait{display:block}.result-portrait-art-stack{max-width:330px;margin:auto}.result-portrait-copy{padding:22px 0 0}.reading-columns{grid-template-columns:1fr}.trait-entry summary{padding:18px 17px}}
 @media(max-width:530px){.gallery-switch{width:100%;display:flex}.gallery-switch button{flex:1;padding:12px 5px;font-size:9px}.reading-column-header{padding:17px}.trait-entry-body{padding:0 15px 18px 38px}.invite-panel{padding:18px;gap:10px;align-items:start}.invite-panel img{width:94px;height:94px}.invite-panel h3{font-size:19px}.invite-panel p{font-size:10px}.flip-back-virtue-portrait{height:23%;width:44%}.flip-card-back{gap:2px}.flip-back-heading{font-size:11px}}
+
+/* Mobile editorial refinement · 2026-11-04: real-phone layout review. */
+.mobile-nav-label{display:none}
+.sunmark{width:94px;height:138px;top:20px;right:21px;overflow:hidden;opacity:1;background:white;border:1px solid #d7dbe4;box-shadow:0 8px 18px #20294a11;font-size:initial;line-height:normal}
+.sunmark img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 38%}
+.duality-card{isolation:isolate}
+.duality-card h3,.duality-card p{position:relative;z-index:1}
+@media(max-width:790px){
+  .site-shell,.main-content{min-width:0}
+  .rail-nav button>span:first-child{display:none}
+  .rail-nav button .mobile-nav-label{display:inline;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.03em;margin:0}
+  .rail-nav button{padding:10px 9px;white-space:nowrap}
+  .section-rule{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;line-height:1.6;font-size:9px;letter-spacing:.13em}
+  .section-rule span{min-width:0;overflow-wrap:anywhere}
+  .section-rule span:last-child{font-size:8px;letter-spacing:.13em;color:#a0a4ad}
+  .intro-bottom-copy{min-width:0}
+  .metric-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding-top:0}
+  .metric-row>span{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:6px;padding:13px 12px 4px;font-size:11px;line-height:1.4;white-space:nowrap}
+  .metric-row>span:first-child{padding-left:0}
+  .metric-row>span+span{border-left:1px solid #dfe2ea}
+  .metric-row strong{font-size:clamp(21px,4.7vw,28px);line-height:1.1;letter-spacing:-.025em;margin-right:0}
+}
+@media(max-width:530px){
+  .left-rail{padding:11px 14px;gap:8px;min-height:59px}
+  .identity{gap:6px;min-width:0}
+  .identity strong{font-size:13px;letter-spacing:.025em}
+  .identity small{display:none}
+  .brand-seal{width:28px;height:28px;flex:none}
+  .rail-nav{flex:none;gap:0}
+  .rail-nav button{padding:9px 7px}
+  .rail-nav button .mobile-nav-label{font-size:11px}
+  .main-content{padding:0 17px}
+  .topline{height:47px}
+  .intro-bottom{padding:25px 0 22px}
+  .intro-bottom-title{margin:14px 0 11px;line-height:1.45}
+  .intro-bottom-copy p{margin:0 0 18px;line-height:1.9}
+  .metric-row>span{padding:13px 9px 4px;font-size:10px;letter-spacing:0}
+  .metric-row strong{font-size:clamp(21px,6.4vw,26px)}
+  .home-duality{gap:11px;padding:19px 0 34px}
+  .duality-card{min-height:0;padding:19px 18px 21px}
+  .card-index{font-size:9px;letter-spacing:.16em}
+  .sunmark{width:69px;height:102px;top:17px;right:17px}
+  .duality-card h3{font-size:25px;line-height:1.2;margin:31px 0 12px;letter-spacing:.08em}
+  .duality-card h3 small{display:block;margin:6px 0 0;font-size:10px;letter-spacing:.08em}
+  .duality-card p{max-width:none;font-size:12px;line-height:1.75;margin:9px 0 0}
+  .section-display{font-size:clamp(23px,6.5vw,29px);line-height:1.5;overflow-wrap:anywhere}
+  .question-section{padding-top:22px}
+  .question-main{padding:24px 15px 24px}
+  .question-main h1{font-size:clamp(23px,6.6vw,28px);line-height:1.65}
+  .frequency-list .answer-option{min-height:61px;padding:13px 12px;gap:11px;font-size:13px}
+  .question-topline{line-height:1.6;gap:8px}
+  .quiz-footer{gap:10px}
+  .result-opening h1{font-size:clamp(30px,8.4vw,36px)}
+  .result-emblem{min-height:0;padding:22px 21px}
+  .result-summary{padding:19px 15px;gap:12px}
+  .result-summary strong{font-size:34px}
+  .invite-panel{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:20px}
+  .invite-panel img{width:126px;height:126px;justify-self:center}
+  .invite-panel h3{font-size:21px}
+  .invite-panel p{font-size:11px}
+  .flip-deck{gap:10px}
+  .gallery-card figcaption{min-width:0}
+}
+@media(max-width:360px){
+  .left-rail{padding-left:9px;padding-right:9px}
+  .identity strong{font-size:12px}
+  .rail-nav button{padding:9px 5px}
+  .rail-nav button .mobile-nav-label{font-size:10px}
+  .main-content{padding:0 13px}
+  .metric-row>span{padding:12px 6px 4px;font-size:9px}
+  .metric-row strong{font-size:21px}
+  .flip-deck{gap:8px}
+}
