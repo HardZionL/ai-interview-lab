@@ -42,7 +42,7 @@ function FlipDeck({report}:{report:Report}) {
         <span className="flip-card-inner">
           <span className="flip-card-face flip-card-front"><CardArt axis={axisIndex}/><span className="flip-hint"><span>✧</span> CLICK TO REVEAL <span>↻</span></span></span>
           <span className="flip-card-face flip-card-back">
-            <span className="flip-back-top"><span>FIELDNOTES / {String(pos+1).padStart(2,"0")}</span><span>✳</span></span>
+            <span className="flip-back-top"><span>FIELDNOTES / {String(pos+1).padStart(2,"0")}</span><Seal small/></span>
             <span className="flip-back-virtue-portrait"><CardArt axis={axisIndex} kind="virtue"/></span>
             <span className="flip-back-heading">TWO SIDES<br/>OF ONE SELF</span>
             <span className="flip-back-rule"/>
