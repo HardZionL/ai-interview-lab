@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { axes, frequencyLabels, modeInfo, questionsForMode, scoreAnswers, type QuizMode, type Report } from "../lib/quiz";
 import { interpretTrait, reportReflection } from "./interpretations";
 import { downloadCard } from "./sharePoster";
@@ -188,8 +188,16 @@ export default function Home() {
   },[openReport]);
 
   useEffect(()=>{if(ready)localStorage.setItem(PROGRESS_KEY,JSON.stringify({mode,answers,index}));},[mode,answers,index,ready]);
-  // Move focus back to the start of every new question and report.
-  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});},[view,index]);
+  // Keep the next question in sight on phones: scrolling to the page top would
+  // force the participant to pass the header again after every answer.
+  // Desktop navigation and report transitions retain their original behavior.
+  useLayoutEffect(()=>{
+    if(view==="quiz"&&window.matchMedia("(max-width: 790px)").matches){
+      const questionCard=document.querySelector<HTMLElement>(".question-main");
+      if(questionCard){questionCard.scrollIntoView({block:"start",behavior:"instant"});return;}
+    }
+    window.scrollTo({top:0,behavior:"instant"});
+  },[view,index]);
   const answered=useMemo(()=>answers.filter(v=>v!==null).length,[answers]);
   const progress=Math.round(answered/activeQuestions.length*100);
   const displayProgress=view==="result"&&report?100:progress;
